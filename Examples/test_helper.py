@@ -127,12 +127,9 @@ def t5():
     print("Result: number of rows = ", result[0])
     print("Data = \n", json.dumps(result[1], indent=2, default=str))
 
-t1()
-t2()
-#t3() # Table not yet imported
+#t1()
+#t2()
+#t3()
 #t4()
 
-#t5()
-
-
-#these are all the tests
+t5()

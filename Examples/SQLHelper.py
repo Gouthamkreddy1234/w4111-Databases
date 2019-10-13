@@ -180,12 +180,3 @@ def create_update(table_name, new_values, template):
     return sql, args
 
 
-
-if __name__ == '__main__':
-    #calling the connect function
-    print(_get_default_connection())
-    r,w = run_q('select * from people limit 1')#tuple
-    print(r) #number of rows affected
-    print(w)
-
-

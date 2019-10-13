@@ -1,7 +1,7 @@
 # I write and test methods one at a time.
 # This file contains unit tests of individual methods.
 
-from HW_Assignments.HW1_Template.src.CSVDataTable import CSVDataTable
+from src.CSVDataTable import CSVDataTable
 import logging
 import os
 
@@ -30,4 +30,4 @@ def t_load():
     print("Created table = " + str(csv_tbl))
 
 
-t_load() #consider this case 1
+t_load()

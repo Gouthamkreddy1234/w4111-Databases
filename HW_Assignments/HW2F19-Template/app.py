@@ -189,14 +189,6 @@ def dbs():
 
     # Hint: Implement the function in data_table_adaptor
     #
-    res = dta.get_databases()
-    print(res)
-    msg = {
-        "Databases": res
-    }
-
-    rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-    return rsp
 
 
 
@@ -204,7 +196,7 @@ def dbs():
 def tbls(dbname):
     """
 
-    :param dbname: The name of a database/schema
+    :param dbname: The name of a database/sche,a
     :return: List of tables in the database.
     """
 
@@ -214,18 +206,6 @@ def tbls(dbname):
 
     # Hint: Implement the function in data_table_adaptor
     #
-    res = dta.get_db_tables()
-    print(res)
-    msg = {
-        "Tables": res
-    }
-
-    rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-    return rsp
-
-def convert_timestamp(item_date_object):
-    if isinstance(item_date_object, (datetime.date, datetime)):
-        return item_date_object.timestamp()
 
 
 @application.route('/api/<dbname>/<resource>/<primary_key>', methods=['GET', 'PUT', 'DELETE'])
@@ -239,21 +219,6 @@ def resource_by_id(dbname, resource, primary_key):
     """
 
     result = None
-
-    keys = str(primary_key).split('_')
-    print(keys)
-
-    args = request.args.get("fields")
-    if args is not None:
-        print(args)
-        args=str(args).split(',')
-        print(args)
-
-    dict = request.args.to_dict()
-    if 'fields' in dict:
-        dict.pop('fields')
-
-    print(dict)
 
     try:
         # Parse the incoming request into an application specific format.
@@ -270,18 +235,6 @@ def resource_by_id(dbname, resource, primary_key):
             # SOME CODE GOES HERE
             #
             # -- TO IMPLEMENT --
-            res = dta.select(dbname, resource, keys, args)
-            print(res)
-            if res is None:
-                res = "No matching fields"
-
-            msg = {
-                 "Data": res
-            }
-
-            #rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-            return msg
-
             pass
 
         elif request.method == 'DELETE':
@@ -289,14 +242,6 @@ def resource_by_id(dbname, resource, primary_key):
             # SOME CODE GOES HERE
             #
             # -- TO IMPLEMENT --
-            res = dta.delete(dbname, resource, keys)
-            # print("asdsdsads"+res)
-            msg = {
-                "No. of rows deleted": res
-            }
-
-            rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-            return rsp
             pass
 
         elif request.method == 'PUT':
@@ -304,14 +249,6 @@ def resource_by_id(dbname, resource, primary_key):
             # SOME CODE GOES HERE
             #
             # -- TO IMPLEMENT --
-            res = dta.insert(dbname, resource, keys, dict)
-            # print("asdsdsads"+res)
-            msg = {
-                "Primary key row": res
-            }
-
-            rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-            return rsp
             pass
 
     except Exception as e:
@@ -332,103 +269,25 @@ def get_resource(dbname, resource_name):
         #
         # -- TO IMPLEMENT --
 
+
         if request.method == 'GET':
             #
             # SOME CODE GOES HERE
             #
             # -- TO IMPLEMENT --
-            offset = request.args.get("offset")
-            limit = request.args.get("limit")
-
-            dict = request.args.to_dict()
-            print(dict)
-
-            if dict['fields'] is not None:
-                field_list = dict.pop('fields')
-                print(dict)
-                field_list=str(field_list).split(',')
-                print(field_list)
-
-            if offset is not None:
-                dict.pop('offset')
-                if int(offset) < 0:
-                    return "offset cannot be less than zero"
-
-            if limit is not None:
-                dict.pop('limit')
-
-
-            url = request.url
-
-            links = []
-            current = {
-                "rel":"current",
-                "href": request.url
-
-            }
-            url_split = url.split("&offset")
-            url = url_split[0]
-            next = {
-                "rel": "next",
-                "href": url + "&offset=" + str(int(offset)+int(limit)) + "&limit=" + limit
-
-            }
-            if (int(offset)-int(limit)) < 0:
-                prev_url = "Not available since offset would be less that 0"
-            else:
-                prev_url = url + "&offset=" + str(int(offset)-int(limit)) + "&limit=" + limit
-            previous = {
-                "rel": "previous",
-                "href": prev_url
-
-            }
-            links.append(current)
-            links.append(next)
-            links.append(previous)
-
-
-            res = dta.select_by_temp(dbname, resource_name, dict, field_list)
-
-
-            print(res)
-            final_res = []
-            for i in range(int(offset),int(offset)+int(limit)):
-                final_res.append(res[i])
-
-            msg = {
-                "links":links,
-                "total":len(res),
-                "Data": final_res
-            }
-
-            # rsp = Response(json.dumps(msg), status=200, content_type="application/json")
-
-            return msg
-
             pass
 
         elif request.method == 'POST':
-            data = request.form
-            data=data.to_dict()
-
-            print(data)
             #
             # SOME CODE GOES HERE
             #
             # -- TO IMPLEMENT --
-            res = dta.insert_post(dbname, resource_name, data)
-            print("Response="+str(res))
-
-            msg = "HTTP: 200 Entry successfully inserted"
-
-            return msg, 200, {'Content-Type': 'application/json; charset=utf-8'}
-
             pass
         else:
             result = "Invalid request."
             return result, 400, {'Content-Type': 'text/plain; charset=utf-8'}
     except Exception as e:
-        print("Exception e is = ", e)
+        print("Exception e = ", e)
         return handle_error(e, result)
 
 
@@ -456,7 +315,7 @@ def get_by_path_key(dbname, parent_name, primary_key, target_name, target_key):
 
 # You can ignore this method.
 def handle_error(e, result):
-    return "HTTP: 504 "+str(e), 504, {'Content-Type': 'text/plain; charset=utf-8'}
+    return "Internal error.", 504, {'Content-Type': 'text/plain; charset=utf-8'}
 
 # run the app.
 if __name__ == "__main__":
