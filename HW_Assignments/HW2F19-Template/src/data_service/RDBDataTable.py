@@ -79,6 +79,7 @@ class RDBDataTable():
             db=self._connect_info['db'],
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor)
+        print(self._cnx)
 
         if db_name is None or table_name is None:
             raise ValueError("You MUST pass a database name and table name.")
@@ -127,6 +128,10 @@ class RDBDataTable():
         """
 
         # -- TO IMPLEMENT --
+        print("sheje")
+        res = dbutils.run_q("select count(*) from "+self._full_table_name, conn=self._cnx)
+        print(res)
+        self._row_count = res
 
     def get_primary_key_columns(self):
         """
@@ -138,6 +143,15 @@ class RDBDataTable():
 
         # Hint. Google "get primary key columns mysql"
         # Hint. THE ORDER OF THE COLUMNS IN THE KEY DEFINITION MATTERS.
+        print("Adssdasds")
+        key_list = []
+        d, res = dbutils.run_q("SELECT `COLUMN_NAME` FROM `information_schema`.`COLUMNS` WHERE (`TABLE_SCHEMA` = 'lahman2019clean') AND (`TABLE_NAME` = '"+ self._table_name +"') AND (`COLUMN_KEY` = 'PRI');", conn=self._cnx)
+        for j in res:
+            key_list.append(j['COLUMN_NAME'])
+        print(key_list)
+        key_list.reverse()
+        self._key_columns = key_list
+        print(self._key_columns)
 
     def get_sample_rows(self, no_of_rows=_rows_to_print):
         """
@@ -211,6 +225,7 @@ class RDBDataTable():
         """
 
         result = None
+        print(template)
 
         try:
             sql, args = dbutils.create_select(self._full_table_name, template=template, fields=field_list)
